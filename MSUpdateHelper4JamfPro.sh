@@ -231,26 +231,44 @@ function PerformUpdate() {
 # downloads and installs newest version of autoupdate
 function downloadMAU() {
 
-  # creates temp directory
-  temp=$TMPDIR$(uuidgen)
-  mkdir -p $temp/mount
+	#creates temp directory
+	temp=$TMPDIR$(uuidgen)
+	dlDir="/Library/JAMF/tmp/"$temp/mount
 
-  # Download URL to microsoft skype:
-  officeURL="https://go.microsoft.com/fwlink/?linkid=830196"
+	echo $dlDir
 
-  # Generates download URL for newest office
-  finalDownload=$(curl "$officeURL" -s -L -I -o /dev/null -w '%{url_effective}')
+	mkdir -p $dlDir
 
-   echo "downloading newest autoupdate"
-  # downloads office package
-  curl "$finalDownload" > $temp/1.pkg
+	#Download URL to microsoft skype:
+	officeURL="https://go.microsoft.com/fwlink/?linkid=830196"
 
-  # installs package
-  installer -pkg $temp/1.pkg -target /
+	#Generates download URL for newest office
+	finalDownload=$(curl "$officeURL" -s -L -I -o /dev/null -w '%{url_effective}')
+    
+    pkgVersion=$(echo $finalDownload | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+")
+    
+    installedPkgVersion=$(defaults read "/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app/Contents/Info.plist" CFBundleVersion)
+    
+    if [ "$pkgVersion" != "$installedPkgVersion" ]; then
+    
+    echo "$pkgVersion != $installedPkgVersion"
 
-   echo "Finished installing"
-  # rms temp
-  rm -r $temp
+	#downloads office package
+	curl "$finalDownload" > $dlDir/1.pkg
+
+	#installs package
+	installer -pkg $dlDir/1.pkg -target /
+
+
+	#rms temp
+	rm -r $dlDir
+    
+    else
+    	echo "autoupdate already up to date!!"
+    
+    fi
+    
+    
   
 }
 
@@ -265,7 +283,7 @@ DetermineLoginState
 
 if [ "$UPDATE_MAU" == "true" ]; then
 	Debug "Going for MSau04 update"
-	PerformUpdate "MSau04" "$TARGET_VERSION"
+	PerformUpdate "MSau04" ""
 else
 	Debug "Update for MSau04 disabled"
 fi
