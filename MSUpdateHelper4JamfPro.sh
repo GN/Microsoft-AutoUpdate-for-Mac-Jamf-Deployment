@@ -264,11 +264,7 @@ function downloadMAU() {
     
     else
     	echo "autoupdate already up to date!!"
-    
     fi
-    
-    
-  
 }
 
 
