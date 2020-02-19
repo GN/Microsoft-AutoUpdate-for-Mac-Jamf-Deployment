@@ -231,19 +231,19 @@ function PerformUpdate() {
 # downloads and installs newest version of autoupdate
 function downloadMAU() {
 
-	#creates temp directory
-	temp=$TMPDIR$(uuidgen)
-	dlDir="/Library/JAMF/tmp/"$temp/mount
+    #creates temp directory
+    temp=$TMPDIR$(uuidgen)
+    dlDir="/Library/JAMF/tmp/"$temp/mount
 
-	echo $dlDir
+    echo $dlDir
 
-	mkdir -p $dlDir
+    mkdir -p $dlDir
 
-	#Download URL to microsoft skype:
-	officeURL="https://go.microsoft.com/fwlink/?linkid=830196"
+    #Download URL to microsoft autoupdater:
+    officeURL="https://go.microsoft.com/fwlink/?linkid=830196"
 
-	#Generates download URL for newest office
-	finalDownload=$(curl "$officeURL" -s -L -I -o /dev/null -w '%{url_effective}')
+    #Generates download URL for newest autoupdater
+    finalDownload=$(curl "$officeURL" -s -L -I -o /dev/null -w '%{url_effective}')
     
     pkgVersion=$(echo $finalDownload | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+")
     
@@ -251,14 +251,13 @@ function downloadMAU() {
     
     if [ "$pkgVersion" != "$installedPkgVersion" ]; then
     
-    echo "$pkgVersion != $installedPkgVersion"
+    	echo "$pkgVersion != $installedPkgVersion"
 
 	#downloads office package
 	curl "$finalDownload" > $dlDir/1.pkg
 
 	#installs package
 	installer -pkg $dlDir/1.pkg -target /
-
 
 	#rms temp
 	rm -r $dlDir
